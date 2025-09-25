@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chicken Road</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="phone">
+    <div class="top-rail"></div>
+<header class="header">
+  <h1 class="logo">CHICKEN R<span class="egg-dot"></span>AD</h1>
+  <select id="langSelect" class="lang-select">
+    <option value="en">EN</option>
+    <option value="fr">FR</option>
+    <option value="es">ES</option>
+    <option value="ru" selected>RU</option>
+  </select>
+</header>
+    <main class="game">
+      <div class="arena">
+        <div class="viewport" id="viewport">
+          <div class="track" id="track">
+<div class="col start" data-idx="0">
+  <div class="lane-plate"></div> <!-- нижняя массивная плита -->
+  <div class="vent"></div>       <!-- вентиляция сверху -->
+  <div class="lamp"></div>       <!-- лампа -->
+</div>
+
+<div class="col lane" data-idx="1">
+  <div class="lane-plate"></div> <!-- нижняя массивная плита -->
+  <div class="vent"></div>       <!-- вентиляция сверху -->
+  <div class="lamp"></div>       <!-- лампа -->
+  <div class="pad"><span>3x</span></div>
+</div>
+<div class="col lane" data-idx="2">
+  <div class="lane-plate"></div> <!-- нижняя массивная плита -->
+  <div class="vent"></div>       <!-- вентиляция сверху -->
+  <div class="lamp"></div>       <!-- лампа -->
+  <div class="pad"><span>6x</span></div>
+</div>
+<div class="col lane" data-idx="3">
+  <div class="lane-plate"></div> <!-- нижняя массивная плита -->
+  <div class="vent"></div>       <!-- вентиляция сверху -->
+  <div class="lamp"></div>       <!-- лампа -->
+  <div class="pad"><span>9x</span></div>
+</div>
+<div class="col lane" data-idx="3">
+  <div class="lane-plate"></div> <!-- нижняя массивная плита -->
+  <div class="vent"></div>       <!-- вентиляция сверху -->
+  <div class="lamp"></div>       <!-- лампа -->
+  <div class="pad gold"><span>15x</span></div>
+</div>
+            <div class="col finish" data-idx="5">
+              <div class="arch">
+                  <div class="vent"></div>       <!-- вентиляция сверху -->
+  <div class="lamp"></div>       <!-- лампа -->
+                <div class="eggAura"></div>
+                <div class="gold-egg"><div class="shine"></div><span class="xx">Bonus</span></div>
+                <div class="pedestal"></div>
+              </div>
+            </div>
+
+<div id="chicken" class="chicken">
+  <div id="chickenSprite" class="chicken-sprite" aria-hidden="true"></div>
+</div>
+
+
+            <div id="shadow" class="shadow"></div>
+          </div>
+        </div>
+      </div>
+
+      <section class="panel">
+        <div class="betbar">
+          <button class="chip chip--ghost" id="minBtn">MIN</button>
+          <div class="amount" id="amount">250</div>
+          <button class="chip chip--ghost" id="maxBtn">MAX</button>
+        </div>
+        <div class="chips">
+          <button class="chip" data-inc="5">5 $</button>
+          <button class="chip" data-inc="10">10 $</button>
+          <button class="chip" data-inc="15">15 $</button>
+          <button class="chip" data-inc="20">20 $</button>
+        </div>
+        <div class="actions">
+          <button class="btn btn--yellow" id="cashout">Cash out</button>
+          <button class="btn btn--green" id="goBtn">Play</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Non-closable Bonus Modal -->
+    <div class="modal" id="bonusModal" aria-hidden="true">
+      <form class="modal__card" id="bonusForm">
+        <div class="modal__title">Бонус</div>
+        <p class="modal__text">Чтобы забрать бонус, введите номер телефона или почту:</p>
+        <div class="input-wrap">
+          <input id="contact" name="contact" type="text" inputmode="email" placeholder="+7 9XX XXX XX XX или email@example.com" required />
+        </div>
+        <button class="btn btn--green modal__btn" type="submit">Забрать</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
