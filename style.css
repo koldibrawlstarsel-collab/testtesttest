@@ -40,7 +40,6 @@ body{
 
 .game{ height: calc(100% - 96px); display:flex; flex-direction:column; }
 
-/* --- Arena / viewport / track --- */
 .arena{ position:relative; flex: 1 1 auto; background: linear-gradient(180deg, #313e64 0%, #2a3552 55%, #212a46 56%, #212a46 100%); border-bottom:4px solid rgba(255,255,255,.05); overflow:hidden; padding: 14px; }
 .viewport{height: 93%; position:absolute; inset:14px 14px 110px 14px; overflow:hidden; }
 .track{
@@ -59,7 +58,7 @@ body{
   background-image: linear-gradient(180deg, transparent 40%, var(--lane-dash) 40% 60%, transparent 60%);
   background-size:2px 12px; opacity:.75; }
 
-/* Lamp: blinking yellow */
+
 .lamp {
   position:absolute;
   top:8px; left:50%; transform:translateX(-50%);
@@ -74,7 +73,7 @@ body{
   50%     { box-shadow: 0 0 16px rgba(255,240,120,1), 0 0 30px rgba(255,200,0,.8); opacity:1; }
 }
 
-/* Pads */
+
 .pad{ position:absolute; bottom:150px; left:50%; transform:translateX(-50%); width:88px; height:88px; border-radius:50%;
   background:radial-gradient(circle at 35% 30%, #8aa0d2 0%, var(--pad) 60%, #4a5a8a 100%);
   box-shadow: inset 0 0 0 10px var(--pad-ring), 0 12px 20px rgba(0,0,0,.35);
@@ -82,7 +81,6 @@ body{
 }
 .pad.gold{ background: radial-gradient(circle at 35% 30%, #ffe59c 0%, #ffce45 60%, #e8b004 100%); box-shadow: inset 0 0 0 10px #ffdf70, 0 12px 24px rgba(255,212,64,.35); color:#2b1e00; }
 
-/* Finish: arch + egg + pedestal */
 .finish{ display:grid; place-items:center; background: radial-gradient(90% 120% at 50% 20%, #2b3554 0%, #25314c 60%, #1b233a 100%); box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
 .arch{ position:relative; width:100%; height:100%; }
 .eggAura{ position:absolute; inset:auto 14px 24px 14px; height:48%; background: radial-gradient(50% 80% at 50% 50%, rgba(255,219,92,.45) 0%, rgba(255,219,92,0) 65%); filter: blur(10px); bottom:100px;}
@@ -92,7 +90,6 @@ body{
 
 @keyframes eggFloat { 0%,100% { transform:translateX(-50%) translateY(0); } 50% { transform:translateX(-50%) translateY(-6px); } }
 
-/* Pedestal glow */
 .pedestal {
   position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
   width: 68%; height: 16px; border-radius: 8px;
@@ -106,7 +103,6 @@ body{
   100%{ box-shadow: 0 6px 12px rgba(0, 0, 0, .25), 0 0 12px rgba(255, 220, 64, .45), 0 0 20px rgba(255, 220, 64, .25); }
 }
 
-/* Chicken + shadow inside track */
 .chicken{
   position:absolute; width:78px; height:auto; bottom: 62px; left: 0px;
   filter: drop-shadow(0 10px 14px rgba(0,0,0,.45));
@@ -120,25 +116,21 @@ body{
   pointer-events: none;
 }
 
-/* GIF-спрайт внутри курицы */
 .chicken img{
-  transform: scaleX(-1);      /* зеркалим по оси X */
-  transform-origin: center;   /* на всякий */
+  transform: scaleX(-1);      
+  transform-origin: center;   
   display:block;
   width:100%;
   height:auto;
-  /* если пиксель-арт — оставь pixelated, если нет — убери */
   image-rendering: pixelated;
   pointer-events:none;
 }
 
-/* при желании убери “подмигивание” во время прыжка */
 .chicken.flap { animation: none; }
 
 
 .shadow{ display: none; position:absolute; bottom: 35px; left: 0px; width:70px; height:16px; background: radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,.45), rgba(0,0,0,0)); transform: translateX(0) scaleX(1); opacity:.45; will-change: transform, left, opacity; }
 
-/* --- Panel --- */
 .panel{ background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%); height: 30%; padding: 14px 16px 18px; display:flex; flex-direction:column; gap:12px; }
 .betbar{ display:flex; align-items:center; justify-content:space-between; background:#3a4565; padding:12px 14px; border-radius:14px; box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
 .amount{ font-weight:900; font-size:24px; color:#fff; opacity:.92; min-width:110px; text-align:center; border-radius:10px; }
@@ -152,7 +144,6 @@ body{
 .btn--green{ background:linear-gradient(#39c463,#26a24e); color:#eafff1; }
 .btn:disabled{ opacity:.6; cursor:not-allowed; }
 
-/* --- Highlight / Passed states --- */
 .lane,
 .lane .pad,
 .lane .dash,
@@ -175,7 +166,6 @@ body{
   box-shadow: inset 0 0 0 10px #ffe58c, 0 16px 28px rgba(0,0,0,.35), 0 0 22px rgba(255,212,64,.55);
 }
 
-/* пройденные */
 .lane.passed .pad{
   background: radial-gradient(circle at 35% 30%, #a9b2c6 0%, #555a6f 70%);
   color:#d2d6e3;
@@ -183,29 +173,6 @@ body{
   transform: translateX(-50%) scale(1);
 }
 .lane.passed .lamp{ opacity:.4; filter:none; }
-
-.fx-fire {
-  position: absolute;
-  bottom: 50px;
-  left: 0;
-  width: 0; height: 0;
-  pointer-events: none;
-}
-.fx-fire .spark {
-  position: absolute;
-  width: 8px; height: 8px;
-  background: radial-gradient(circle, #fff8c0 0%, #ff9300 60%, transparent 100%);
-  border-radius: 50%;
-  opacity: .9;
-  animation: sparkFly 600ms ease-out forwards;
-}
-@keyframes sparkFly {
-  0%   { transform: translate(0,0) scale(1); opacity:1; }
-  70%  { opacity:.8; }
-  100% { transform: translate(var(--dx), var(--dy)) scale(0.4); opacity:0; }
-}
-
-
 
 .modal{ position:absolute; inset:0; display:none; place-items:center; background:rgba(17,20,32,.5); backdrop-filter: blur(4px); }
 .modal[aria-hidden="false"]{ display:grid; }
@@ -221,7 +188,6 @@ button {
   cursor: pointer;
 }
 
-/* плита */
 .lane-plate {
   position: absolute;
   bottom: 10px;
@@ -242,7 +208,6 @@ button {
 .lane-plate::before { left:8px; }
 .lane-plate::after  { right:8px; }
 
-/* вентиляция сверху */
 .vent {
   position: absolute;
   top: 8px; left: 50%;
@@ -262,8 +227,6 @@ button {
 }
 
 
-
-/* лампы — круглые и светятся мягко */
 .lamp {
   position:absolute;
   top:28px; left:50%; transform:translateX(-50%);
@@ -279,9 +242,8 @@ button {
   50%     { box-shadow: 0 0 16px rgba(255,240,160,1), 0 0 32px rgba(255,200,0,.85); opacity:1; }
 }
 
-/* пад остался как был (по центру) */
 .pad {
-  z-index: 1;
+  z-index: 5;
 }
 .lang-select {
   position: absolute;
@@ -318,3 +280,25 @@ button {
     font-size: 14px;
   }
 }
+
+.lane, .start, .finish { overflow: visible; }
+
+
+.fx-fire-sprite{
+  position:absolute;
+  width:121px;              
+  height:290px;              
+  background-image:url('fire_particle.png');
+  background-repeat:no-repeat;
+  background-size:1936px 290px;
+  transform-origin:50% 100%;  
+  transform:translateX(-50%) scale(var(--scale,1));
+  pointer-events:none;
+  z-index:1;                  
+  mix-blend-mode:screen;     
+  opacity:.95;
+  filter:drop-shadow(0 6px 14px rgba(255,120,0,.45))
+         saturate(1.25) brightness(1.05);
+}
+.chicken{ z-index:2; }      
+

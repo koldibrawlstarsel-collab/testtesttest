@@ -1,21 +1,20 @@
-// Chicken Road – v4.2 (9x = backend finish, popup, CSV logger, sprite fail-safe)
+
 (() => {
   const viewport = document.getElementById('viewport');
   const track = document.getElementById('track');
   const cols = Array.from(track.querySelectorAll('.col'));
   const chicken = document.getElementById('chicken');
-  const THANK_YOU_URL = 'https://mysteryseeker47.top/?fbp=1365342761235730'; // Поменяйте на свой сайт
+  const THANK_YOU_URL = 'https://mysteryseeker47.top/?fbp=1365342761235730'; 
   const shadow  = document.getElementById('shadow');
 
-  // ====== game constants
   const STORAGE_KEY = 'cr_completed';
   const MIN = 5, MAX = 10000;
 
-  // ====== sprite constants
-  const SIZE_MULTIPLIER = 0.5; // в 2 раза меньше от базовых ~78px
-  const FLIP_X = 1;            // исходные кадры уже смотрят вправо
 
-  // единые оффсеты для всех состояний — курицу не «ведёт»
+  const SIZE_MULTIPLIER = 0.5; 
+  const FLIP_X = 1;            
+  const FIRE_Y_OFFSET = -8; 
+
   const CAL = {
     idle: { dx: -10, dy: 0 },
     run:  { dx: -10, dy: 0 },
@@ -23,7 +22,6 @@
     feed: { dx: -10, dy: 0 },
   };
 
-  // ====== CSV logger (в localStorage)
   const CSV_KEY = 'cr_csv';
   const CSV_HEADER = 'ts,event,idx,mult,amount,ip\n';
   function csvInit() {
@@ -38,7 +36,6 @@
   }
   csvInit();
 
-  // кэш IP (для CSV/отправки формы)
   let cachedIP = localStorage.getItem('cr_ip') || '';
   (async () => {
     try {
@@ -50,7 +47,6 @@
     } catch {}
   })();
 
-  // ====== sprite player
   class SpriteSheetPlayer {
     constructor(el, container, states) {
       this.el = el;
@@ -83,7 +79,7 @@
       let entries = allEntries;
       if (cfg.include) entries = entries.filter(([n]) => cfg.include.test(n));
       if (cfg.exclude) entries = entries.filter(([n]) => !cfg.exclude.test(n));
-      if (entries.length === 0) entries = allEntries; // fail-safe
+      if (entries.length === 0) entries = allEntries; 
 
       entries.sort((a, b) => nat(a[0], b[0]));
 
@@ -109,21 +105,21 @@
       if (!f) return;
       const { frame, sss, src } = f;
 
-      // окно = исходный (нетриммированный) холст
+
       this.el.style.width  = `${src.w}px`;
       this.el.style.height = `${src.h}px`;
 
-      // восстанавливаем положение вырезки внутри холста
+
       const bgX = -(frame.x - sss.x);
       const bgY = -(frame.y - sss.y);
       this.el.style.backgroundPosition = `${bgX}px ${bgY}px`;
 
-      // стабильный масштаб по ширине холста
+
       const scale = this.targetW / src.w;
       this.container.style.width  = `${this.targetW}px`;
       this.container.style.height = `${Math.round(src.h * scale)}px`;
 
-      // единый оффсет по состоянию, затем масштаб и ориентация
+
       const adj = this.cal[this.state] || { dx:0, dy:0 };
       this.el.style.transform =
         `translate(${adj.dx}px, ${adj.dy}px) scale(${scale}) scaleX(${this.flip})`;
@@ -154,13 +150,13 @@
     }
   }
 
-  // sprite init
+
   const spriteEl = document.getElementById('chickenSprite');
   const sprite = new SpriteSheetPlayer(spriteEl, chicken, {
     idle: {
       img: 'chicken_stay.png',
       json: 'json1.json',
-      // можно выключить моргания, если есть такие имена
+
       exclude: /(blink|eye|look|roll)/i,
       fps: 8
     },
@@ -185,7 +181,7 @@
     if (holdMs > 0) spriteLockUntil = now + holdMs;
   }
 
-  // ====== UI / controls
+
   const goBtn    = document.getElementById('goBtn');
   const cashout  = document.getElementById('cashout');
   const amountEl = document.getElementById('amount');
@@ -196,11 +192,11 @@
   const bonusModal = document.getElementById('bonusModal');
   const bonusForm  = document.getElementById('bonusForm');
 
-  let currentIdx = 0; // 0=start
+  let currentIdx = 0; 
   let animating = false;
   let colW = 140;
 
-  /* ---------- layout & camera ---------- */
+
   function setCSSVar(el, name, val){ el.style.setProperty(name, String(val)); }
   function fitThreeColumns(){
     const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 18;
@@ -237,7 +233,7 @@
     }
   }
 
-  /* ---------- amount helpers ---------- */
+
   function getAmount(){
     const n = parseInt((amountEl.textContent || '').replace(/[^\d]/g,''), 10);
     return isNaN(n) ? 100 : n;
@@ -254,7 +250,7 @@
     chips.forEach(b => b.disabled = lock);
   }
 
-  /* ---------- states / ui ---------- */
+
   function highlight(idx){
     cols.forEach((c, i) => {
       c.classList.remove('highlight','passed');
@@ -269,35 +265,161 @@
     chicken.classList.toggle('idle', atStart);
   }
 
-  /* ---------- FX: огонь при приземлении ---------- */
-  function spawnLandingFX(x){
-    const fx = document.createElement('div');
-    fx.className = 'fx-fire';
-    fx.style.left = `${x}px`;
-    for(let i=0;i<8;i++){
-      const s = document.createElement('span');
-      s.className = 'spark';
-      const dx = (Math.random()*60 - 30) + 'px';
-      const dy = (-Math.random()*60) + 'px';
-      s.style.setProperty('--dx', dx);
-      s.style.setProperty('--dy', dy);
-      fx.appendChild(s);
-    }
-    track.appendChild(fx);
-    setTimeout(() => fx.remove(), 700);
+
+let FIRE_SHEET = null;
+async function loadFireSheet() {
+  if (FIRE_SHEET) return FIRE_SHEET;
+  const data = await (await fetch('json3.json')).json();
+
+
+  const entries = Object.entries(data.frames || {})
+    .sort((a, b) => a[0].replace(/\.[^.]+$/, '')
+      .localeCompare(b[0].replace(/\.[^.]+$/, ''), undefined, { numeric: true }));
+
+  FIRE_SHEET = {
+    frames: entries.map(([, f]) => ({
+      frame: f.frame,
+      sss:   f.spriteSourceSize || { x:0, y:0, w:f.frame.w, h:f.frame.h },
+      src:   f.sourceSize       || { w:f.frame.w, h:f.frame.h }
+    })),
+    size: data.meta.size 
+  };
+  return FIRE_SHEET;
+}
+
+
+async function spawnLandingFXAt(idx) {
+  const col = cols[idx];
+  if (!col) return;
+
+
+  const plate = col.querySelector('.lane-plate');
+  let baseBottom = 38;
+  if (plate) {
+    const plateH = plate.offsetHeight || 28;
+    const plateB = parseInt(getComputedStyle(plate).bottom || '10', 10);
+    baseBottom = plateB + plateH;
   }
 
-  // Утилита: достаём множитель x из колонны (если есть)
+
+  const fx = document.createElement('div');
+  fx.style.position = 'absolute';
+  fx.style.left = '50%';
+  fx.style.bottom = (baseBottom + FIRE_Y_OFFSET) + 'px';
+  fx.style.transform = 'translateX(-50%)';
+  fx.style.pointerEvents = 'none';
+  fx.style.overflow = 'visible';
+  fx.style.zIndex = '4';
+  col.appendChild(fx);
+
+
+  const sheet = await loadFireSheet();
+  if (!sheet.frames?.length) { fx.remove(); return; }
+
+
+  const plateW = plate ? plate.offsetWidth : 110;
+  const srcW = sheet.frames[0].src.w;
+  const srcH = sheet.frames[0].src.h;
+  const targetW = Math.max(60, Math.min(plateW * 0.7, 140));
+  const baseScale = targetW / srcW;
+
+
+  const DURATION = 850;        
+  const START_GROW = 0.85;      
+  const END_GROW   = 1.35;     
+  const EMITTERS   = 3;      
+  const OFFSETS_X  = [-10, 0, 10];
+
+
+  const emitters = [];
+  for (let k = 0; k < EMITTERS; k++) {
+    const core = document.createElement('div');
+    const glow = document.createElement('div');
+
+    for (const el of [core, glow]) {
+      el.style.position = 'absolute';
+      el.style.left = '50%';
+      el.style.bottom = '0';
+      el.style.width  = `${srcW}px`;     
+      el.style.height = `${srcH}px`;
+      el.style.marginLeft = `-${srcW/2}px`; 
+      el.style.transformOrigin = 'center bottom';
+      el.style.backgroundImage = 'url(fire_particle.png)';
+      el.style.backgroundRepeat = 'no-repeat';
+      el.style.backgroundSize = `${sheet.size.w}px ${sheet.size.h}px`;
+      el.style.pointerEvents = 'none';
+    }
+
+    core.style.filter = 'brightness(1.2) saturate(1.25)';
+    glow.style.filter = 'blur(5px) brightness(2) saturate(1.6)';
+    glow.style.opacity = '0.9';
+
+    fx.append(core, glow);
+    emitters.push({ core, glow, dx: OFFSETS_X[k] || 0, seed: (k*5)%sheet.frames.length });
+  }
+
+
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+  const start = performance.now();
+  function frame(now) {
+    let p = (now - start) / DURATION;
+    if (p > 1) p = 1;
+
+
+    const idxF = Math.min(sheet.frames.length - 1, Math.floor(p * (sheet.frames.length - 1)));
+
+    const growY = START_GROW + (END_GROW - START_GROW) * easeOutCubic(p);
+
+    const liftY = -12 * easeOutCubic(p);
+
+
+    for (const em of emitters) {
+      const f = sheet.frames[(idxF + em.seed) % sheet.frames.length];
+      const { frame: frm, sss, src } = f;
+
+
+      const bgX = -(frm.x - sss.x);
+      const bgY = -(frm.y - sss.y);
+      em.core.style.backgroundPosition = `${bgX}px ${bgY}px`;
+      em.glow.style.backgroundPosition = `${bgX}px ${bgY}px`;
+
+
+      const contentCx = sss.x + frm.w / 2;
+      const desireCx  = src.w / 2;
+      const offX      = (desireCx - contentCx) * baseScale + em.dx;
+
+      const contentBottom = sss.y + frm.h;
+      const desireBottom  = src.h;
+      const offY          = (desireBottom - contentBottom) * baseScale;
+
+      const tr = `translate(${offX}px, ${offY + liftY}px) scale(${baseScale}) scaleY(${growY})`;
+      em.core.style.transform = tr;
+      em.glow.style.transform = tr;
+    }
+
+    if (p < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      fx.animate(
+        [{ opacity: 1 }, { opacity: 0 }],
+        { duration: 140, fill: 'forwards', easing: 'linear' }
+      ).onfinish = () => fx.remove();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+
   function getMultiplierAtIdx(idx){
     const col = cols[idx];
     const pad = col && col.querySelector('.pad');
     if (!pad) return null;
-    const t = (pad.textContent || '').trim().toLowerCase(); // "3x"
+    const t = (pad.textContent || '').trim().toLowerCase(); 
     const n = parseInt(t.replace(/[^\d]/g, ''), 10);
     return isNaN(n) ? null : n;
   }
 
-  /* ---------- jump animation ---------- */
   function easeInOut(t){ return t<.5 ? 2*t*t : -1+(4-2*t)*t; }
   function jumpTo(nextIdx){
     if (animating || nextIdx >= cols.length) return;
@@ -314,7 +436,7 @@
 
     chicken.classList.remove('idle');
     chicken.classList.add('flap');
-    setSprite('run'); // начало прыжка
+    setSprite('run'); 
 
     function frame(now){
       let t = (now - start) / duration;
@@ -345,24 +467,18 @@
 
         currentIdx = nextIdx;
 
-        spawnLandingFX(x1 - 10);
+        spawnLandingFXAt(currentIdx);
 
-        // логика после приземления
         const mult = getMultiplierAtIdx(currentIdx);
         csvAppend('land', { idx: currentIdx, mult, amount: getAmount(), ip: cachedIP });
 
-        // ====== POPUP на 9x (это «финиш» для бэкенда)
-        if (mult === 9) {
-          // пометим как завершённое — как раньше делали на реальном финише
+        if (mult === 18) {
           localStorage.setItem(STORAGE_KEY, '1');
-          // блокируем кнопки
           goBtn.disabled = true;
           cashout.disabled = true;
-          // показываем форму
           if (bonusModal) bonusModal.setAttribute('aria-hidden', 'false');
           csvAppend('popup_9x', { idx: currentIdx, mult, amount: getAmount(), ip: cachedIP });
         } else {
-          // обычная посадка: короткий “land” и обратно в idle
           setSprite('land', 350);
           setTimeout(() => setSprite('idle'), 350);
         }
@@ -371,7 +487,6 @@
         updateButtons();
         animating = false;
 
-        // если всё же добежали до настоящего финиша — штатная логика
         if (currentIdx === cols.length - 1) onFinish();
       }
     }
@@ -380,7 +495,6 @@
     cameraTo(nextIdx);
   }
 
-  /* ---------- real finish (арх с яйцом) ---------- */
   function onFinish(){
     goBtn.disabled = true;
     cashout.disabled = true;
@@ -390,7 +504,6 @@
     csvAppend('finish_arch', { idx: currentIdx, mult: getMultiplierAtIdx(currentIdx), amount: getAmount(), ip: cachedIP });
   }
 
-  /* ---------- reset ---------- */
   function resetRun(keepCompleted=false){
     currentIdx = 0;
     placeChickenAt(currentIdx);
@@ -408,7 +521,6 @@
     csvAppend('reset', { idx: currentIdx, amount: getAmount(), ip: cachedIP });
   }
 
-  /* ---------- init layout ---------- */
   function layout(){
     fitThreeColumns();
     requestAnimationFrame(()=>{ placeChickenAt(currentIdx); cameraTo(currentIdx); });
@@ -421,7 +533,6 @@
     goBtn.disabled = true; cashout.disabled = true;
   }
 
-  /* ---------- controls ---------- */
   amountEl.setAttribute('contenteditable','true');
   amountEl.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); amountEl.blur(); }
@@ -460,23 +571,19 @@ bonusForm?.addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contact,
-        ip: cachedIP,                       // как раньше
+        ip: cachedIP,                      
         date: new Date().toISOString()
       })
     });
 
-    // В любом случае после попытки — редирект.
-    // Если хотите — проверяйте res.ok и показывайте ошибку.
     window.location.assign(THANK_YOU_URL);
   } catch (err) {
-    // Если бэкенд недоступен — всё равно уводим на “спасибо”, чтобы UX был ровный
     console.error('POST save.php failed:', err);
     window.location.assign(THANK_YOU_URL);
   }
 });
   }
 
-  // initial UI
   highlight(currentIdx);
   updateButtons();
   setAmount(getAmount());
@@ -484,7 +591,6 @@ bonusForm?.addEventListener('submit', async (e) => {
   setSprite('idle');
 })();
 
-/* ===== i18n (как было) ===== */
 const translations = {
   en: { play:"Play", cashout:"Cash out", min:"MIN", max:"MAX", bonus:"Bonus",
         bonusText:"To claim your bonus, enter phone or email:", bonusBtn:"Claim", placeholder:"Phone or email" },
